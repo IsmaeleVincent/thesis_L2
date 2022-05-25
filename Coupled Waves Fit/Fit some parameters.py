@@ -98,6 +98,7 @@ bcr2=0.
 bcr3=0
 n_0 =1.
 phi=0
+phi1=0
 d0=78
 
 
@@ -124,10 +125,10 @@ def process_fit(k):
     for i in range(1,3):
         diff_eff_fit[2-i,:]=diff_eff[:,6-2*i].copy()
         diff_eff_fit[2+i,:]=diff_eff[:,6+2*i].copy()
-    def fit_func(x, bcr1, bcr2, bcr3, mu1,phi,phi1,d, lambda_par, sigma,x00):
+    def fit_func(x, bcr1, bcr2, bcr3, mu1, lambda_par, sigma,x00):
         x=diff_eff[:,0]+x00
         sigma1= (sigma**2+1/lambda_par**2)**0.5
-        d=d/np.cos(tilt[k]*rad)
+        d=d0/np.cos(tilt[k]*rad)
         wl=np.linspace(mu1-2.5*sigma, mu1+1/lambda_par+3.5*sigma1, 10000)
         a = rho(wl,lambda_par, mu1, sigma)/sum(rho(wl,lambda_par, mu1, sigma))
         spl = UnivariateSpline(wl, a, k=4, s=0)
@@ -198,19 +199,19 @@ def process_fit(k):
         aaa=eta_fit[n_diff-2:n_diff+3].ravel()
         #plt.plot(aaa)
         return aaa
-    P0= fit_res[0] # np.zeros(10) # [8, 2,0, 2.01e-3, pi,0, 75, 1000, 0.0004] #  [*fit_res[0,:-1],0.0005] #  [5,0,2.6e-3] # 
-    # P0[0]=7.5
-    # P0[1]=1.5
-    # P0[2]=0
-    # P0[3]=2.1e-3
-    # P0[4]=0
-    # P0[5]=0
-    # P0[6]=78
+    P0= np.zeros(7) # fit_res[0] #  [8, 2,0, 2.01e-3, pi,0, 75, 1000, 0.0004] #  [*fit_res[0,:-1],0.0005] #  [5,0,2.6e-3] # 
+    P0[0]=7.5
+    P0[1]=1.5
+    P0[2]=0
+    P0[3]=2.5e-3
+    P0[4]=0
+    P0[5]=0
+    P0[6]=0
     # P0[7]=500
     # P0[8]=0.0005
     # P0[9]=0.0
     if (fitting):
-        B=([6, 0.5, 0, 1.8e-3,-pi/9,-pi/8,73,300,0.00035,-0.003/rad],[15, 2,0.3, 3.5e-3, pi/9,pi/8,80,650,0.0006, 0.003/rad])     
+        B=([4, 0.5, 0, 2.1e-3,600,0.00035,-0.003/rad],[15, 8,3, 3.5e-3, 1800,0.00065, 0.003/rad])     
         for i in range(len(B[0])):
             if (P0[i]<B[0][i] or P0[i]>B[1][i]):
                 P0[i]=(B[1][i]+B[0][i])/2
@@ -260,9 +261,9 @@ if (plotting):
         for i in range(1,3):
             diff_eff_fit[2-i,:]=diff_eff[:,6-2*i].copy()
             diff_eff_fit[2+i,:]=diff_eff[:,6+2*i].copy()
-        def plot_func(x, bcr1, bcr2, bcr3, mu1, phi,phi1,d,lambda_par, sigma, x00):
+        def plot_func(x, bcr1, bcr2, bcr3, mu1, phi,lambda_par, sigma, x00):
             x=diff_eff[:,0]+x00
-            d=d/np.cos(tilt[k]*rad)
+            d=d0/np.cos(tilt[k]*rad)
             sigma1= (sigma**2+1/lambda_par**2)**0.5
             wl=np.linspace(mu1-2.5*sigma, mu1+1/lambda_par+3.5*sigma1, 10000)
             a = rho(wl,lambda_par, mu1, sigma)/sum(rho(wl,lambda_par, mu1, sigma))
@@ -373,7 +374,7 @@ Merges fit results in a doc
 """
 data_analysis = sorted_fold_path+foldername[0]+"/Data Analysis/"
 fit_res =  np.loadtxt(data_analysis+foldername[0]+'_fit_results.mpa',skiprows=1)
-tot_res = np.zeros((len(foldername), 11))
+tot_res = np.zeros((len(foldername), 8))
 for k in range(len(foldername)):
     print(foldername[k])
     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
